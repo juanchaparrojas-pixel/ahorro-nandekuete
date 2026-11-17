@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ahorro Ñandekuete - Cooperativa</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0_0 / 0.1); }
+        h1, h2, h3 { color: #0f172a; margin-top: 0; }
+        
+        .header-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 16px; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-logo { background: #0d9488; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
+        
+        .nav-tabs { display: flex; gap: 20px; border-bottom: 1px solid #e2e8f0; margin-bottom: 24px; overflow-x: auto; }
+        .tab-btn { background: none; border: none; padding: 10px 4px; font-size: 14px; font-weight: 500; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab-btn.active { color: #0f172a; border-bottom-color: #0f172a; font-weight: 600; }
+
+        .btn { background-color: #0d9488; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 14px; }
+        .btn:hover { background-color: #0f766e; }
+        .btn-secondary { background-color: #e2e8f0; color: #475569; }
+        
+        .kpi-card { background: #0f172a; color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; }
+        .kpi-amount { font-size: 36px; font-weight: bold; font-family: ui-monospace, monospace; margin: 8px 0; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+        th { color: #64748b; font-weight: 600; }
+        
+        .form-section { background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; max-width: 600px; margin-bottom: 20px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box; margin-bottom: 16px; background: white; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .font-mono { font-family: ui-monospace, monospace; }
+        .text-muted { color: #64748b; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-top">
+        <div class="brand">
+            <div class="brand-logo">AP</div>
+            <div>
+                <h1>Ahorros Programados</h1>
+                <p class="text-muted" style="margin: 0;">Nande Kuete</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación por pestañas completa -->
+    <div class="nav-tabs" id="navTabsContainer">
+        <button class="tab-btn active" onclick="switchTab('resumen', this)">Resumen</button>
+        <button class="tab-btn" onclick="switchTab('ficha', this)">Ficha</button>
+        <button class="tab-btn" onclick="switchTab('tasas', this)">Tasas</button>
+        <button class="tab-btn" onclick="switchTab('mover', this)">Mover</button>
+        <button class="tab-btn" onclick="switchTab('datos', this)">Datos</button>
+        <button class="tab-btn" onclick="switchTab('informes', this)">Informes</button>
+        <button class="tab-btn" onclick="switchTab('admins', this)">Admins</button>
+        <button class="tab-btn" onclick="switchTab('portal', this)" style="color: #0d9488; font-weight: bold;">Portal Socio 👤</button>
+    </div>
+
+    <!-- 1. RESUMEN -->
+    <div id="resumen" class="tab-content active">
+        <div class="kpi-card">
+            <span style="font-size: 13px; opacity: 0.8; text-transform: uppercase;">SALDOS TOTALES · ACTIVOS</span>
+            <div class="kpi-amount" id="kpiSaldos">Gs. 0</div>
+            <div style="font-size: 13px; opacity: 0.9;" id="kpiInteres">▲ Gs. 0 de interés anual proyectado</div>
+        </div>
+        <h3>Resumen General</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>SOCIO</th>
+                    <th>APORTES</th>
+                    <th>RETIROS</th>
+                    <th>INTERÉS ANUAL</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tbody id="tablaResumenBody"></tbody>
+        </table>
+    </div>
+
+    <!-- 2. FICHA -->
+    <div id="ficha" class="tab-content">
+        <h3>Ficha de Socios</h3>
+        <p class="text-muted">Selecciona un socio para ver su cuenta individual.</p>
+        <div id="listaSociosFicha" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;"></div>
+        <div id="detalleSocioCard" class="kpi-card" style="display: none;">
+            <h2 id="fichaNombre" style="color: white; margin-top: 0;">-</h2>
+            <p id="fichaMeta" style="margin: 4px 0;">-</p>
+            <div class="kpi-amount" id="fichaCapital">Gs. 0</div>
+        </div>
+    </div>
+
+    <!-- 3. TASAS -->
+    <div id="tasas" class="tab-content">
+        <h3>Tasa anual por plazo</h3>
+        <p class="text-muted">Edita las tasas de interés y guarda los cambios para aplicarlas automáticamente a los ahorros.</p>
+        <div class="form-section" style="margin-top: 20px;">
+            <div id="tasasFormContainer"></div>
+        </div>
+    </div>
+
+    <!-- 4. MOVER -->
+    <div id="mover" class="tab-content">
+        <h3>Nuevo Movimiento</h3>
+        <div class="form-section">
+            <form id="movimientoForm">
+                <label>Tipo de Movimiento</label>
+                <select id="movTipo">
+                    <option value="aporte">Aporte (Abonar)</option>
+                    <option value="retiro">Retiro</option>
+                </select>
+                <label>Seleccionar Plan / Ahorro</label>
+                <select id="movPlanId" required></select>
+                <label>Monto (Gs.)</label>
+                <input type="number" id="movMonto" required placeholder="500000">
+                <label>Concepto / Detalle</label>
+                <input type="text" id="movDetalle" placeholder="Ej. Depósito mensual">
+                <button type="submit" class="btn">Registrar Movimiento</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. DATOS -->
+    <div id="datos" class="tab-content">
+        <h3>Agregar Socio y Plan Inicial</h3>
+        <div class="form-section">
+            <form id="socioForm">
+                <label>N° de Socio</label>
+                <input type="number" id="sNumero" required placeholder="15">
+                <label>Nombres</label>
+                <input type="text" id="sNombres" required placeholder="María">
+                <label>Apellidos</label>
+                <input type="text" id="sApellidos" required placeholder="González">
+                <label>Correo Electrónico (Para Portal del Socio)</label>
+                <input type="email" id="sEmail" placeholder="socio@correo.com">
+                <label>Nombre del Ahorro Inicial</label>
+                <input type="text" id="aNombre" required placeholder="Ahorro Principal">
+                <label>Plazo</label>
+                <select id="aPlazo">
+                    <option value="12">12 meses</option>
+                    <option value="18" selected>18 meses</option>
+                    <option value="24">24 meses</option>
+                    <option value="36">36 meses</option>
+                    <option value="48">48 meses</option>
+                </select>
+                <label>Depósito Inicial (Gs.)</label>
+                <input type="number" id="aInicial" value="0">
+                <label>Monto Objetivo (Gs.)</label>
+                <input type="number" id="aObjetivo" value="5000000">
+                <button type="submit" class="btn">Registrar Socio y Ahorro</button>
+            </form>
+        </div>
+
+        <h3>Importar socios en lote</h3>
+        <div class="form-section">
+            <p class="text-muted">Una línea por socio, separando con comas: <code>n°, nombres, apellidos, correo</code></p>
+            <textarea id="loteTexto" rows="4" placeholder="16, Juan, Pérez, juan@correo.com&#10;17, Ana, Benítez, ana@correo.com"></textarea>
+            <button class="btn btn-secondary" onclick="importarLote()">Procesar Importación</button>
+        </div>
+    </div>
+
+    <!-- 6. INFORMES (Con exportación CSV real) -->
+    <div id="informes" class="tab-content">
+        <h3>Informes Periódicos</h3>
+        <p class="text-muted">Resumen global de capitales e intereses de la cooperativa.</p>
+        <div style="margin: 16px 0; display: flex; gap: 12px;">
+            <button class="btn" onclick="exportarCSV()">📥 Descargar CSV (Excel)</button>
+        </div>
+        <div id="informesContenido" style="margin-top: 16px;"></div>
+    </div>
+
+    <!-- 7. ADMINS -->
+    <div id="admins" class="tab-content">
+        <h3>Gestión de Administradores</h3>
+        <p class="text-muted">Agrega correos electrónicos autorizados para gestionar la cooperativa.</p>
+        <div class="form-section">
+            <form id="adminForm">
+                <label>Correo Electrónico del Administrador</label>
+                <input type="email" id="adminEmailInput" required placeholder="admin@cooperativa.com">
+                <button type="submit" class="btn">Hacer Administrador</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 8. PORTAL SOCIO -->
+    <div id="portal" class="tab-content">
+        <h3>Portal de Acceso del Socio</h3>
+        <p class="text-muted">Ingresa tu correo electrónico registrado para ver tu resumen de ahorros.</p>
+        <div class="form-section">
+            <label>Correo Electrónico</label>
+            <input type="email" id="loginEmail" placeholder="ejemplo@correo.com">
+            <button class="btn" onclick="consultarPortalSocio()">Ver mi Resumen</button>
+        </div>
+
+        <div id="resultadoPortal" style="display: none; margin-top: 20px;">
+            <div class="kpi-card">
+                <h3 id="portalSocioNombre" style="color: white; margin-top:0;">-</h3>
+                <span style="font-size: 13px; opacity: 0.8;">TU CAPITAL AHORRADO</span>
+                <div class="kpi-amount" id="portalSocioCapital">Gs. 0</div>
+                <div style="font-size: 13px; opacity: 0.9;" id="portalSocioDetallePlazo">-</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let tasasCache = { 12: 8, 18: 10, 24: 12, 36: 14, 48: 16 };
+
+    async function cargarTasasConfig() {
+        try {
+            const res = await fetch('/api/tasas');
+            const data = await res.json();
+            if (data && data.length > 0) {
+                data.forEach(t => tasasCache[t.plazo] = Number(t.tasa));
+            }
+            renderTasasForm();
+        } catch(e) { console.error(e); }
+    }
+
+    function renderTasasForm() {
+        const container = document.getElementById('tasasFormContainer');
+        container.innerHTML = '';
+        [12, 18, 24, 36, 48].forEach(plazo => {
+            container.innerHTML += `
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <strong style="width: 100px;">${plazo} meses</strong>
+                    <input type="number" step="0.01" id="tasa_${plazo}" value="${tasasCache[plazo] || 10}" style="margin-bottom:0; flex:1;">
+                    <span>%</span>
+                    <button class="btn" onclick="guardarTasa(${plazo})" style="padding: 10px;">Guardar</button>
+                </div>
+            `;
+        });
+    }
+
+    async function guardarTasa(plazo) {
+        const nuevaTasa = parseFloat(document.getElementById(`tasa_${plazo}`).value);
+        const res = await fetch('/api/tasas', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ plazo, tasa: nuevaTasa })
+        });
+        if(res.ok) {
+            tasasCache[plazo] = nuevaTasa;
+            alert(`¡Tasa para ${plazo} meses actualizada con éxito!`);
+            cargarResumen();
+        } else {
+            alert('Error al guardar la tasa.');
+        }
+    }
+
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+        if (tabId === 'resumen') cargarResumen();
+        if (tabId === 'ficha') cargarFicha();
+        if (tabId === 'tasas') cargarTasasConfig();
+        if (tabId === 'mover') cargarSelectoresMover();
+        if (tabId === 'informes') cargarInformes();
+    }
+
+    function formatMoney(n) {
+        const v = Math.round(Math.abs(n));
+        return `${n < 0 ? "-" : ""}Gs. ${v.toLocaleString('es-PY')}`;
+    }
+
+    async function cargarResumen() {
+        try {
+            await cargarTasasConfig();
+            const [resP, resS] = await Promise.all([fetch('/api/planes'), fetch('/api/socios')]);
+            const planes = await resP.json();
+            const socios = await resS.json();
+            const sociosMap = {};
+            socios.forEach(s => sociosMap[s.id] = `${s.nombres} ${s.apellidos} (N° ${s.numero})`);
+
+            let totalCapital = 0;
+            let totalInteresAnual = 0;
+            const tbody = document.getElementById('tablaResumenBody');
+            tbody.innerHTML = '';
+
+            planes.forEach(p => {
+                const capital = Number(p.monto_ahorrado || 0);
+                const tasa = tasasCache[p.plazo_meses] || 10;
+                const interesAnual = capital * (tasa / 100);
+                totalCapital += capital;
+                totalInteresAnual += interesAnual;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${sociosMap[p.socio_id] || 'Socio'}</strong><br><span class="text-muted">${p.nombre} · ${p.plazo_meses}m - ${tasa}%</span></td>
+                    <td class="font-mono">${formatMoney(capital)}</td>
+                    <td class="font-mono">Gs. 0</td>
+                    <td class="font-mono">${formatMoney(interesAnual)}</td>
+                    <td class="font-mono"><strong>${formatMoney(capital + interesAnual)}</strong></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('kpiSaldos').textContent = formatMoney(totalCapital);
+            document.getElementById('kpiInteres').textContent = `▲ ${formatMoney(totalInteresAnual)} de interés anual proyectado`;
+        } catch (e) { console.error(e); }
+    }
+
+    async function cargarFicha() {
+        const resS = await fetch('/api/socios');
+        const socios = await resS.json();
+        const contenedor = document.getElementById('listaSociosFicha');
+        contenedor.innerHTML = '';
+        socios.forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-secondary';
+            btn.textContent = `N° ${s.numero} - ${s.nombres} ${s.apellidos}`;
+            btn.onclick = () => verDetalleSocio(s);
+            contenedor.appendChild(btn);
+        });
+    }
+
+    async function verDetalleSocio(s) {
+        const resP = await fetch('/api/planes');
+        const planes = await resP.json();
+        const planSocio = planes.find(p => p.socio_id === s.id) || { monto_ahorrado: 0, nombre: 'Sin ahorro', plazo_meses: 18 };
+        document.getElementById('fichaNombre').textContent = `Socio N° ${s.numero} - ${s.nombres} ${s.apellidos}`;
+        document.getElementById('fichaMeta').textContent = `Plan: ${planSocio.nombre} (${planSocio.plazo_meses} meses)`;
+        document.getElementById('fichaCapital').textContent = formatMoney(planSocio.monto_ahorrado);
+        document.getElementById('detalleSocioCard').style.display = 'block';
+    }
+
+    async function cargarSelectoresMover() {
+        const resP = await fetch('/api/planes');
+        const planes = await resP.json();
+        const select = document.getElementById('movPlanId');
+        select.innerHTML = '';
+        planes.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = `${p.nombre} (Capital actual: ${formatMoney(p.monto_ahorrado)})`;
+            select.appendChild(opt);
+        });
+    }
+
+    document.getElementById('movimientoForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const body = {
+            plan_id: parseInt(document.getElementById('movPlanId').value),
+            tipo: document.getElementById('movTipo').value,
+            monto: parseFloat(document.getElementById('movMonto').value),
+            detalle: document.getElementById('movDetalle').value || 'Movimiento web'
+        };
+        const res = await fetch('/api/movimientos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+        if(res.ok) { alert('¡Movimiento registrado con éxito!'); document.getElementById('movimientoForm').reset(); cargarResumen(); }
+    });
+
+    document.getElementById('socioForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const resS = await fetch('/api/socios', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                numero: parseInt(document.getElementById('sNumero').value),
+                nombres: document.getElementById('sNombres').value,
+                apellidos: document.getElementById('sApellidos').value,
+                email: document.getElementById('sEmail').value
+            })
+        });
+        const socio = await resS.json();
+        if(resS.ok) {
+            await fetch('/api/planes', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    socio_id: socio.id,
+                    nombre: document.getElementById('aNombre').value,
+                    plazo_meses: parseInt(document.getElementById('aPlazo').value),
+                    monto_objetivo: parseFloat(document.getElementById('aObjetivo').value),
+                    monto_inicial: parseFloat(document.getElementById('aInicial').value)
+                })
+            });
+            alert('¡Socio y plan registrados con éxito!');
+            document.getElementById('socioForm').reset();
+            cargarResumen();
+        }
+    });
+
+    document.getElementById('adminForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('adminEmailInput').value;
+        const res = await fetch('/api/admins', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email })
+        });
+        if(res.ok) {
+            alert('¡Administrador registrado con éxito!');
+            document.getElementById('adminForm').reset();
+        } else {
+            alert('Error al registrar administrador.');
+        }
+    });
+
+    async function importarLote() {
+        const texto = document.getElementById('loteTexto').value.trim();
+        if (!texto) { alert('Ingrese datos para importar.'); return; }
+        const lineas = texto.split('\n');
+        let count = 0;
+        for (let l of lineas) {
+            const partes = l.split(',').map(p => p.trim());
+            if (partes.length >= 3) {
+                const res = await fetch('/api/socios', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ numero: parseInt(partes[0]), nombres: partes[1], apellidos: partes[2], email: partes[3] || null })
+                });
+                if (res.ok) count++;
+            }
+        }
+        alert(`¡Se importaron ${count} socios con éxito!`);
+        document.getElementById('loteTexto').value = '';
+        cargarResumen();
+    }
+
+    async function consultarPortalSocio() {
+        const emailIngresado = document.getElementById('loginEmail').value.trim().toLowerCase();
+        if(!emailIngresado) { alert('Ingrese un correo electrónico.'); return; }
+
+        const [resS, resP] = await Promise.all([fetch('/api/socios'), fetch('/api/planes')]);
+        const socios = await resS.json();
+        const planes = await resP.json();
+
+        const socioEncontrado = socios.find(s => s.email && s.email.toLowerCase() === emailIngresado);
+        if(!socioEncontrado) {
+            alert('❌ No se encontró ningún socio registrado con ese correo electrónico.');
+            document.getElementById('resultadoPortal').style.display = 'none';
+            return;
+        }
+
+        const planSocio = planes.find(p => p.socio_id === socioEncontrado.id) || { monto_ahorrado: 0, nombre: 'Sin plan activo', plazo_meses: 18 };
+        const tasa = tasasCache[planSocio.plazo_meses] || 10;
+        const interesPlazo = Number(planSocio.monto_ahorrado || 0) * (tasa / 100) * (planSocio.plazo_meses / 12);
+        const total = Number(planSocio.monto_ahorrado || 0) + interesPlazo;
+
+        document.getElementById('portalSocioNombre').textContent = `${socioEncontrado.nombres} ${socioEncontrado.apellidos} (Socio N° ${socioEncontrado.numero})`;
+        document.getElementById('portalSocioCapital').textContent = formatMoney(planSocio.monto_ahorrado);
+        document.getElementById('portalSocioDetallePlazo').textContent = `Plan: ${planSocio.nombre} · Plazo: ${planSocio.plazo_meses} meses (${tasa}%) · Proyección Total: ${formatMoney(total)}`;
+        document.getElementById('resultadoPortal').style.display = 'block';
+    }
+
+    async function cargarInformes() {
+        const resP = await fetch('/api/planes');
+        const planes = await resP.json();
+        let total = 0;
+        planes.forEach(p => total += Number(p.monto_ahorrado || 0));
+        document.getElementById('informesContenido').innerHTML = `
+            <div style="background: #f1f5f9; padding: 16px; border-radius: 8px;">
+                <p><strong>Total Cooperativo Global:</strong> <span class="font-mono">${formatMoney(total)}</span></p>
+                <p class="text-muted">Informes calculados en tiempo real desde Supabase.</p>
+            </div>
+        `;
+    }
+
+    async function exportarCSV() {
+        const resP = await fetch('/api/planes');
+        const planes = await resP.json();
+        let csvContent = "data:text/csv;charset=utf-8,Plan,Plazo,CapitalAhorrado,MontoObjetivo\n";
+        planes.forEach(p => {
+            csvContent += `"${p.nombre}",${p.plazo_meses},${p.monto_ahorrado},${p.monto_objetivo}\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "informe_cooperativa_nandekuete.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    cargarResumen();
+</script>
+
+</body>
+</html>
