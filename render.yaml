@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: ahorro-nandekuete
-    runtime: node
-    buildCommand: npm install
-    startCommand: npx tsx src/index.ts
-    envVars:
-      - key: NODE_ENV
-        value: production
